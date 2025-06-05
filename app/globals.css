@@ -1,0 +1,355 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+    --radius: 0.5rem;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Animação shimmer para skeleton loading */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite linear;
+}
+
+/* Utilitários para responsividade mobile */
+@layer utilities {
+  /* Breakpoint extra small para telas muito pequenas */
+  @screen xs {
+    .xs\:inline {
+      display: inline;
+    }
+    .xs\:hidden {
+      display: none;
+    }
+  }
+
+  /* Line clamp para truncar texto */
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  /* Melhor área de toque para mobile */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Scroll suave */
+  .smooth-scroll {
+    scroll-behavior: smooth;
+  }
+
+  /* Otimizações para mobile */
+  .mobile-optimized {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* Estados de foco melhorados para mobile */
+  .focus-visible-enhanced:focus-visible {
+    outline: 2px solid theme(colors.red.500);
+    outline-offset: 2px;
+  }
+}
+
+/* Breakpoint customizado para telas extra pequenas - Correção de sintaxe */
+@media (min-width: 475px) {
+  .xs\:inline {
+    display: inline;
+  }
+  .xs\:hidden {
+    display: none;
+  }
+}
+
+/* Melhorias para dispositivos móveis com toque */
+@media (hover: none) and (pointer: coarse) {
+  /* Aumentar área de toque em botões pequenos */
+  button[data-size="sm"] {
+    min-height: 40px;
+    min-width: 40px;
+  }
+
+  /* Remover hover states em dispositivos touch */
+  .hover\:bg-gray-50:hover {
+    background-color: initial;
+  }
+
+  /* Melhor feedback visual para toque */
+  button:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+}
+
+/* Otimizações para telas pequenas */
+@media (max-width: 640px) {
+  /* Reduzir padding em containers */
+  .container-mobile {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  /* Melhor espaçamento para formulários */
+  .form-mobile input,
+  .form-mobile textarea,
+  .form-mobile select {
+    font-size: 16px; /* Previne zoom no iOS */
+  }
+
+  /* Otimizar modais para mobile */
+  .modal-mobile {
+    margin: 0.5rem;
+    max-height: calc(100vh - 1rem);
+  }
+
+  /* Melhorias específicas para modais em mobile */
+  /* Modal responsivo */
+  [data-radix-dialog-content] {
+    margin: 0.5rem !important;
+    max-height: calc(100vh - 1rem) !important;
+    width: calc(100vw - 1rem) !important;
+  }
+
+  /* Inputs maiores em mobile para melhor usabilidade */
+  .modal-mobile input,
+  .modal-mobile textarea,
+  .modal-mobile select {
+    min-height: 48px;
+    font-size: 16px; /* Previne zoom no iOS */
+  }
+
+  /* Botões com área de toque adequada */
+  .modal-mobile button {
+    min-height: 48px;
+    min-width: 48px;
+  }
+
+  /* Melhor espaçamento para labels */
+  .modal-mobile label {
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+
+  /* Upload de imagem otimizado */
+  .modal-mobile .upload-area {
+    padding: 1rem;
+    min-height: 120px;
+  }
+
+  /* Melhor scroll em modais */
+  .modal-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  /* Inputs maiores para toque */
+  .form-mobile input,
+  .form-mobile textarea,
+  .form-mobile select,
+  .form-mobile button {
+    font-size: 16px !important; /* Previne zoom no iOS */
+    min-height: 48px;
+  }
+
+  /* Área de upload otimizada */
+  .upload-area {
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Botões com área de toque adequada */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* Melhorias de acessibilidade */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Dark mode otimizado para mobile */
+@media (prefers-color-scheme: dark) {
+  .auto-dark {
+    color-scheme: dark;
+  }
+}
+
+/* Área de toque melhorada */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Scroll suave para modais */
+.modal-scroll {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Melhorias para o seletor de data e hora no iOS */
+input[type="date"],
+input[type="time"] {
+  -webkit-appearance: none;
+  appearance: none;
+  padding-right: 0.5rem;
+}
+
+/* Estilos específicos para o Mapbox */
+.map-container {
+  touch-action: pan-x pan-y;
+  height: 100%;
+  width: 100%;
+  position: relative;
+  min-height: 300px;
+  background-color: #f3f4f6;
+}
+
+/* Garantir que o mapa do Mapbox apareça corretamente */
+.mapboxgl-map {
+  width: 100% !important;
+  height: 100% !important;
+  position: relative !important;
+}
+
+.mapboxgl-canvas-container {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.mapboxgl-canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Melhorias para botões de ação */
+.action-buttons {
+  position: sticky;
+  bottom: 0;
+  background-color: white;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  border-top: 1px solid #e5e7eb;
+  z-index: 10;
+}
+
+/* Estilos para o marcador do Mapbox */
+.mapboxgl-marker {
+  cursor: pointer;
+}
+
+/* Remover controles desnecessários do Mapbox */
+.mapboxgl-ctrl-bottom-left,
+.mapboxgl-ctrl-bottom-right {
+  display: none;
+}
