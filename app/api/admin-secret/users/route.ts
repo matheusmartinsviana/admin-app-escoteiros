@@ -1,4 +1,4 @@
-noimport { sql, ensureDbInitialized } from "@/lib/db";
+import { sql, ensureDbInitialized } from "@/lib/db";
 import { hashPassword } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 
