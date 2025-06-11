@@ -135,62 +135,6 @@ export default function LoginPage() {
                   </div>
                 )}
 
-                {isInitializing && (
-                  <div className="flex items-center gap-2 text-blue-600 text-sm bg-blue-50 p-3 rounded-lg">
-                    <Loader2 className="h-4 w-4 animate-spin flex-shrink-0" />
-                    <span>Inicializando banco de dados...</span>
-                  </div>
-                )}
-
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4 mb-4 shadow-sm">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
-                    <div className="flex-1">
-                      <p className="text-xs sm:text-sm text-blue-800">
-                        <strong>Credenciais padrão:</strong>
-                        <br />
-                        Email: admin@escoteiros.com
-                        <br />
-                        Senha: admin123
-                      </p>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={fillDefaultCredentials}
-                      className="text-blue-600 border-blue-300 hover:bg-blue-100 transition-all duration-200 hover:scale-105 w-full sm:w-auto text-xs sm:text-sm"
-                    >
-                      Preencher
-                    </Button>
-                  </div>
-
-                  <div className="border-t border-blue-200 pt-3">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={resetAdminUser}
-                      disabled={isResetting}
-                      className="w-full text-orange-600 border-orange-300 hover:bg-orange-50 transition-all duration-200 hover:scale-105 text-xs sm:text-sm"
-                    >
-                      {isResetting ? (
-                        <>
-                          <Loader2 className="mr-2 h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
-                          Resetando...
-                        </>
-                      ) : (
-                        <>
-                          <RefreshCw className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                          Resetar Usuário Admin
-                        </>
-                      )}
-                    </Button>
-                    <p className="text-xs text-orange-700 mt-1 text-center sm:text-left">
-                      Use se não conseguir fazer login
-                    </p>
-                  </div>
-                </div>
-
                 <div className="relative group">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 sm:h-5 sm:w-5 transition-colors duration-200 group-focus-within:text-red-500" />
                   <Input
@@ -232,18 +176,6 @@ export default function LoginPage() {
                     "Login"
                   )}
                 </Button>
-
-                <div className="text-center">
-                  <p className="text-xs sm:text-sm text-gray-500">
-                    Esqueceu a sua senha?{" "}
-                    <button
-                      type="button"
-                      className="text-red-600 hover:text-red-700 underline transition-colors duration-200 hover:no-underline"
-                    >
-                      Clique aqui para alterar
-                    </button>
-                  </p>
-                </div>
               </form>
             </CardContent>
           </Card>

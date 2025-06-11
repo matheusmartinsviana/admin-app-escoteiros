@@ -3,6 +3,11 @@ import type { NextRequest } from "next/server"
 import { verifyToken } from "./lib/auth"
 
 export async function middleware(request: NextRequest) {
+  // Desabilita o middleware durante os testes
+  if (process.env.DISABLE_MIDDLEWARE === 'true') {
+    return NextResponse.next()
+  }
+
   const { pathname } = request.nextUrl
 
   // Allow access to admin-secret without authentication

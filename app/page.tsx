@@ -1,8 +1,29 @@
+"use client"
+
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
+import { useDashboard } from "./dashboard/hooks/use-dashboard"
+import { useRouter } from "next/navigation"
+import { useEffect } from "react"
 
 export default function HomePage() {
+  const {
+    isAuthenticated,
+  } = useDashboard()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push("/dashboard")
+    } else {
+      router.push("/login")
+    }
+  }, [isAuthenticated, router])
+
+  return null
+
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
       <div className="text-center mb-8 flex flex-col items-center">
