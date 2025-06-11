@@ -9,17 +9,16 @@ const allowedOrigins = [
   "https://escoteiro-pirabeiraba.vercel.app",
 ];
 
-// Função para verificar se a origem é permitida
 const isAllowedOrigin = (origin: string | null) => {
   if (!origin) return false;
   return allowedOrigins.includes(origin);
 };
 
-// Constants for pagination
+// Constantes de paginação
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 8;
 
-// Function to validate date format and value
+// Validação de data
 const isValidDate = (dateString: string): boolean => {
   const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
   return (
@@ -29,7 +28,7 @@ const isValidDate = (dateString: string): boolean => {
   );
 };
 
-// Function to validate time format and value
+// Validação de horário
 const isValidTime = (timeString: string): boolean => {
   const timeRegex = /^\d{2}:\d{2}$/;
   if (!timeString) return false;
@@ -44,10 +43,9 @@ const isValidTime = (timeString: string): boolean => {
   );
 };
 
-// Function to fetch events with pagination and status filter
+// GET: Buscar eventos com paginação e filtro de status
 export async function GET(request: NextRequest) {
   try {
-    // Configuração do CORS
     const origin = request.headers.get("origin") || "";
     const headers = new Headers();
 
@@ -60,42 +58,25 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    console.log("GET /api/events - Starting request");
-
     await ensureDbInitialized();
-    console.log("Database initialized successfully");
 
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
-    const page = Number.parseInt(
-      searchParams.get("page") || String(DEFAULT_PAGE)
-    );
-    const limit = Number.parseInt(
-      searchParams.get("limit") || String(DEFAULT_LIMIT)
-    );
+    const page = Number(searchParams.get("page") || DEFAULT_PAGE);
+    const limit = Number(searchParams.get("limit") || DEFAULT_LIMIT);
     const offset = (page - 1) * limit;
 
-    console.log("Request params:", { status, page, limit, offset });
+    // Atualiza status de eventos passados
+    await sql`
+      UPDATE events 
+      SET status = 'realizado', updated_at = CURRENT_TIMESTAMP
+      WHERE event_date < CURRENT_DATE AND status = 'andamento'
+    `;
 
-    // Update event statuses based on current date
-    try {
-      await sql`
-        UPDATE events 
-        SET status = 'realizado', updated_at = CURRENT_TIMESTAMP
-        WHERE event_date < CURRENT_DATE AND status = 'andamento'
-      `;
-      console.log("Event statuses updated successfully");
-    } catch (updateError) {
-      console.error("Error updating event statuses:", updateError);
-      // Continue execution even if update fails
-    }
-
-    // Construct queries with proper parameterization
     let eventsQuery;
     let countQuery;
 
     if (status) {
-      console.log("Filtering by status:", status);
       eventsQuery = sql`
         SELECT * FROM events 
         WHERE status = ${status} 
@@ -107,7 +88,6 @@ export async function GET(request: NextRequest) {
         WHERE status = ${status}
       `;
     } else {
-      console.log("Fetching all events");
       eventsQuery = sql`
         SELECT * FROM events 
         ORDER BY event_date DESC, event_time DESC 
@@ -118,44 +98,27 @@ export async function GET(request: NextRequest) {
       `;
     }
 
-    // Execute queries
-    console.log("Executing database queries...");
     const [events, totalResult] = await Promise.all([eventsQuery, countQuery]);
-
-    console.log("Events found:", events.length);
-    console.log("Total events:", totalResult[0]?.total);
-
-    const total = Number.parseInt(totalResult[0]?.total || "0");
-
-    const response = {
-      events,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
-
-    console.log("Sending response:", response);
-    return NextResponse.json(response, { headers });
-  } catch (error) {
-    console.error("Error in GET /api/events:", error);
-
-    // More detailed error information
-    const errorMessage =
-      error instanceof Error ? error.message : "Erro desconhecido";
-    const errorStack = error instanceof Error ? error.stack : "No stack trace";
-
-    console.error("Error details:", {
-      message: errorMessage,
-      stack: errorStack,
-    });
+    const total = Number(totalResult[0]?.total || 0);
 
     return NextResponse.json(
       {
+        events,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
+        },
+      },
+      { headers }
+    );
+  } catch (error: any) {
+    console.error("Erro no GET /api/events:", error);
+    return NextResponse.json(
+      {
         error: "Erro ao buscar eventos",
-        details: errorMessage,
+        details: error?.message || "Erro desconhecido",
         timestamp: new Date().toISOString(),
       },
       { status: 500 }
@@ -163,10 +126,9 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Function to create a new event
+// POST: Criar novo evento
 export async function POST(request: NextRequest) {
   try {
-    // Configuração do CORS
     const origin = request.headers.get("origin") || "";
     const headers = new Headers();
 
@@ -181,7 +143,6 @@ export async function POST(request: NextRequest) {
 
     await ensureDbInitialized();
 
-    // Get and verify token
     const token = request.cookies.get("auth-token")?.value;
     if (!token) {
       return NextResponse.json(
@@ -198,11 +159,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Parse event data from request body
     const eventData: CreateEventData = await request.json();
 
-    // Validate event data
-    if (!eventData.title || !eventData.title.trim()) {
+    if (!eventData.title?.trim()) {
       return NextResponse.json(
         { error: "Título é obrigatório" },
         { status: 400 }
@@ -223,7 +182,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!eventData.location || !eventData.location.trim()) {
+    if (!eventData.location?.trim()) {
       return NextResponse.json(
         { error: "Localização é obrigatória" },
         { status: 400 }
@@ -258,28 +217,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create event in database
     const result = await sql`
       INSERT INTO events (title, description, event_date, event_time, image_url, location, status)
       VALUES (
-        ${eventData.title.trim()}, 
-        ${eventData.description?.trim() || ""}, 
-        ${eventData.event_date}, 
-        ${eventData.event_time}, 
+        ${eventData.title.trim()},
+        ${eventData.description?.trim() || ""},
+        ${eventData.event_date},
+        ${eventData.event_time},
         ${eventData.image_url || ""},
-        ${eventData.location?.trim() || "Sede do Grupo Escoteiro Pirabeiraba"},
+        ${eventData.location.trim()},
         'andamento'
       )
       RETURNING *
     `;
 
-    // Return created event
-    console.log("Event created successfully:", result[0].id);
     return NextResponse.json(result[0], { status: 201, headers });
   } catch (error: any) {
-    console.error("Error creating event:", error);
+    console.error("Erro ao criar evento:", error);
 
-    // Handle specific database errors
     if (error.message?.includes("value too long")) {
       return NextResponse.json(
         {
@@ -304,14 +259,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error: "Erro ao criar evento",
-        details: error instanceof Error ? error.message : "Erro desconhecido",
+        details: error?.message || "Erro desconhecido",
       },
       { status: 500 }
     );
   }
 }
 
-// Adicionar handler para requisições OPTIONS
+// OPTIONS: Suporte a preflight request (CORS)
 export async function OPTIONS(request: NextRequest) {
   const origin = request.headers.get("origin") || "";
   const headers = new Headers();
