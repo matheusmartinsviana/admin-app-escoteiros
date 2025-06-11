@@ -46,6 +46,9 @@ export async function PUT(
     }
 
     const eventData = await request.json();
+    console.log("Received event data:", eventData);
+    console.log("Status received:", eventData.status);
+
     const eventId = Number.parseInt(params.id);
 
     if (isNaN(eventId)) {
@@ -84,6 +87,14 @@ export async function PUT(
       );
     }
 
+    // Validação do status
+    if (
+      !eventData.status ||
+      !["andamento", "realizado", "cancelado"].includes(eventData.status)
+    ) {
+      return NextResponse.json({ error: "Status inválido" }, { status: 400 });
+    }
+
     console.log("Updating event with data:", eventData);
 
     const result = await sql`
@@ -95,7 +106,7 @@ export async function PUT(
           location = ${
             eventData.location?.trim() || "Sede do Grupo Escoteiro Pirabeiraba"
           },
-          status = ${eventData.status || "andamento"},
+          status = ${eventData.status},
           image_url = ${eventData.image_url || ""},
           updated_at = CURRENT_TIMESTAMP
       WHERE id = ${eventId}

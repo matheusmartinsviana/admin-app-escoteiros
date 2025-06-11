@@ -1,39 +1,39 @@
-import { neon } from "@neondatabase/serverless"
+import { neon } from "@neondatabase/serverless";
 
 // Environment variable check
-const NEON_DB_URL = process.env.NEON_DB_URL
+const NEON_DB_URL = process.env.NEON_DB_URL;
 if (!NEON_DB_URL) {
-  console.error("Missing Neon database URL")
-  throw new Error("NEON_DB_URL must be set")
+  console.error("Missing Neon database URL");
+  throw new Error("NEON_DB_URL must be set");
 }
 
 // Database connection
-export const sql = neon(NEON_DB_URL)
+export const sql = neon(NEON_DB_URL);
 
 // Database initialization flag
-let dbInitialized = false
+let dbInitialized = false;
 
 // Function to initialize database tables and default data
 export async function initializeDatabase() {
   if (dbInitialized) {
-    console.log("Database already initialized, skipping...")
-    return
+    console.log("Database already initialized, skipping...");
+    return;
   }
 
   try {
-    console.log("Starting database initialization...")
+    console.log("Starting database initialization...");
 
     // Test database connection first
     try {
-      await sql`SELECT 1 as test`
-      console.log("Database connection successful")
+      await sql`SELECT 1 as test`;
+      console.log("Database connection successful");
     } catch (connectionError) {
-      console.error("Database connection failed:", connectionError)
-      throw new Error("Falha na conexão com o banco de dados")
+      console.error("Database connection failed:", connectionError);
+      throw new Error("Falha na conexão com o banco de dados");
     }
 
     // Create users table
-    console.log("Creating users table...")
+    console.log("Creating users table...");
     await sql`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -42,11 +42,11 @@ export async function initializeDatabase() {
         name VARCHAR(255) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
-    `
-    console.log("Users table created/verified")
+    `;
+    console.log("Users table created/verified");
 
     // Create events table
-    console.log("Creating events table...")
+    console.log("Creating events table...");
     await sql`
       CREATE TABLE IF NOT EXISTS events (
         id SERIAL PRIMARY KEY,
@@ -60,60 +60,60 @@ export async function initializeDatabase() {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
-    `
-    console.log("Events table created/verified")
+    `;
+    console.log("Events table created/verified");
 
     // Update existing events table to support larger images
     try {
       await sql`
         ALTER TABLE events ALTER COLUMN image_url TYPE TEXT
-      `
-      console.log("Updated image_url column to TEXT type")
+      `;
+      console.log("Updated image_url column to TEXT type");
     } catch (error) {
       // Column might already be TEXT type, ignore error
-      console.log("image_url column already TEXT type or update not needed")
+      console.log("image_url column already TEXT type or update not needed");
     }
 
     // Add location column if it doesn't exist
     try {
       await sql`
         ALTER TABLE events ADD COLUMN IF NOT EXISTS location TEXT
-      `
-      console.log("Added location column to events table")
+      `;
+      console.log("Added location column to events table");
 
       // Update existing events with default location
       await sql`
         UPDATE events SET location = 'Sede do Grupo Escoteiro Pirabeiraba' WHERE location IS NULL
-      `
-      console.log("Updated existing events with default location")
+      `;
+      console.log("Updated existing events with default location");
     } catch (error) {
       // Column might already exist, ignore error
-      console.log("Location column already exists or update not needed")
+      console.log("Location column already exists or update not needed");
     }
 
     // Check if admin user exists
     const existingUsers = await sql`
       SELECT COUNT(*) as count FROM users WHERE email = 'admin@escoteiros.com'
-    `
+    `;
 
     // Create admin user if it doesn't exist
     if (existingUsers[0].count === 0) {
       // Import hashPassword here to avoid circular dependency
-      const bcrypt = await import("bcryptjs")
-      const hashedPassword = await bcrypt.hash("admin123", 10)
+      const bcrypt = await import("bcryptjs");
+      const hashedPassword = await bcrypt.hash("admin123", 10);
 
       await sql`
         INSERT INTO users (email, password, name) 
         VALUES ('admin@escoteiros.com', ${hashedPassword}, 'Administrador')
-      `
+      `;
 
-      console.log("Admin user created successfully")
+      console.log("Admin user created successfully");
     }
 
     // Check if sample events exist
     const existingEvents = await sql`
       SELECT COUNT(*) as count FROM events
-    `
+    `;
 
     // Insert sample events if none exist
     if (existingEvents[0].count === 0) {
@@ -150,33 +150,33 @@ export async function initializeDatabase() {
           status: "cancelado",
           location: "Escola Municipal de Pirabeiraba",
         },
-      ]
+      ];
 
       for (const event of sampleEvents) {
         await sql`
           INSERT INTO events (title, description, event_date, event_time, status, location)
           VALUES (${event.title}, ${event.description}, ${event.event_date}, ${event.event_time}, ${event.status}, ${event.location})
-        `
+        `;
       }
 
-      console.log("Sample events created successfully")
+      console.log("Sample events created successfully");
     }
 
-    dbInitialized = true
-    console.log("Database initialization completed successfully")
+    dbInitialized = true;
+    console.log("Database initialization completed successfully");
   } catch (error) {
-    console.error("Critical error during database initialization:", error)
-    dbInitialized = false
-    throw error
+    console.error("Critical error during database initialization:", error);
+    dbInitialized = false;
+    throw error;
   }
 }
 
 // Helper function to ensure database is initialized before any operation
 export async function ensureDbInitialized() {
   if (!dbInitialized) {
-    console.log("Database not initialized, initializing now...")
-    await initializeDatabase()
+    console.log("Database not initialized, initializing now...");
+    await initializeDatabase();
   } else {
-    console.log("Database already initialized")
+    console.log("Database already initialized");
   }
 }

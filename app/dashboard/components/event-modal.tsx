@@ -225,7 +225,7 @@ export default function EventModal({ isOpen, onClose, onSave, event }: EventModa
         title: formData.title.trim(),
         description: formData.description?.trim() || "",
         location: formData.location?.trim() || "",
-        status: event ? status : "andamento",
+        status: status,
       }
 
       console.log("Submitting event data:", eventData)
